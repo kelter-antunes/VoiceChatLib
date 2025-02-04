@@ -1,0 +1,65 @@
+.m-carl-notification {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .m-cue {
+    position: relative;
+    width: 168px;
+    height: 168px;
+    margin: 0 auto 50px;
+  }
+  .a-cue-voice {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 168px;
+    height: 168px;
+    transform-origin: center center;
+  }
+  .a-cue-voice-el {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 168px;
+    height: 168px;
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0.2;
+  }
+  .a-cue-icon {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 158px;
+    height: 158px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #FF4FC0, #FF4E83);
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+  .controls {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+  }
+  #micInfo { 
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+  button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    background-color: #2196f3;
+    color: #fff;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }

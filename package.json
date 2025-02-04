@@ -1,0 +1,28 @@
+{
+  "name": "voicechatlib",
+  "version": "1.0.0",
+  "description": "Simple JS VoiceChatLib that captures audio from user mic, with a simple visualizer animation",
+  "main": "index.js",
+  "scripts": {
+    "build": "gulp",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kelter-antunes/VoiceChatLib.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kelter-antunes/VoiceChatLib/issues"
+  },
+  "homepage": "https://github.com/kelter-antunes/VoiceChatLib#readme",
+  "devDependencies": {
+    "gulp": "^5.0.0",
+    "gulp-clean-css": "^4.3.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-uglify": "^3.0.2"
+  }
+}

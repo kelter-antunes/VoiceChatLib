@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Voice Chat Library – Singleton with Custom DOM Options</title>
+    <script src="./dist/voice-chat-lib.min.js"></script>
+    <link rel="stylesheet" href="./dist/voice-chat-lib.min.css" />
+    <style>
+      /* Minimal CSS for overall layout and styling */
+      html, body {
+        height: 100%;
+        margin: 0;
+        font-family: "Avenir Next", "Lato", sans-serif;
+      }
+      .container {
+        position: relative;
+        height: 100%;
+        background: linear-gradient(200deg, #4DA84C, #76CCD9);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- These elements can be present immediately or added later via AJAX -->
+      <div class="m-carl-notification">
+        <div class="m-cue">
+          <!-- Visualizer container -->
+          <div class="a-cue-voice">
+            <div class="a-cue-voice-el"></div>
+            <div class="a-cue-voice-el"></div>
+            <div class="a-cue-voice-el"></div>
+            <div class="a-cue-voice-el"></div>
+            <div class="a-cue-voice-el"></div>
+          </div>
+          <!-- Central icon -->
+          <div class="a-cue-icon"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <div id="micInfo">
+          <p id="micStatus">Turn off microphone</p>
+          <p id="micDevice">Communications - Microphone</p>
+        </div>
+        <button id="toggleMicBtn">Turn off microphone</button>
+        <button id="endChatBtn">End Voice Chat</button>
+      </div>
+    </div>
+    
+    <script>
+      // Example usage:
+      // You can call getInstance() even if the required DOM elements aren’t in the page yet.
+      var voiceChat = VoiceChatLib.getInstance({
+        amplitudeSmoothFactorVar: 0.3,
+        baseRotationDivisor: 16,
+        dynamicLerpMin: 0.05,
+        dynamicLerpAudioMultiplier: 0.5,
+        maxAdditionalRotation: 360,
+        baseScaleMultiplier: 2.0,
+        elements: {
+          // These can be selectors or DOM element references.
+          toggleBtn: "#toggleMicBtn",
+          endBtn: "#endChatBtn",
+          micStatus: "#micStatus",
+          micDevice: "#micDevice",
+          voiceEls: ".a-cue-voice-el"
+        }
+      });
+      
+      // --- Bind event callbacks to log the event details ---
+      voiceChat.onStart = function(e) {
+        console.log("VoiceChatLib Start Event:", e);
+      };
+
+      voiceChat.onToggle = function(e) {
+        console.log("VoiceChatLib ToggleMic Event:", e);
+      };
+
+      voiceChat.onEnd = function(e) {
+        console.log("VoiceChatLib End Event:", e);
+      };
+
+      // Start the library. The MutationObserver will ensure that if elements are added later (via AJAX, etc.)
+      // they are automatically bound and initialized.
+      voiceChat.start();
+    </script>
+  </body>
+</html>
