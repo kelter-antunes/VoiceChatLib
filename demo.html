@@ -47,41 +47,33 @@
     </div>
     
     <script>
-      // Example usage:
-      // You can call getInstance() even if the required DOM elements aren’t in the page yet.
-      var voiceChat = VoiceChatLib.getInstance({
-        amplitudeSmoothFactorVar: 0.3,
-        baseRotationDivisor: 16,
-        dynamicLerpMin: 0.05,
-        dynamicLerpAudioMultiplier: 0.5,
-        maxAdditionalRotation: 360,
-        baseScaleMultiplier: 2.0,
-        elements: {
-          // These can be selectors or DOM element references.
-          toggleBtn: "#toggleMicBtn",
-          endBtn: "#endChatBtn",
-          micStatus: "#micStatus",
-          micDevice: "#micDevice",
-          voiceEls: ".a-cue-voice-el"
-        }
-      });
+        var voiceChat = VoiceChatLib.getInstance({
+          amplitudeSmoothFactorVar: 0.3,
+          baseRotationDivisor: 16,
+          dynamicLerpMin: 0.05,
+          dynamicLerpAudioMultiplier: 0.5,
+          maxAdditionalRotation: 360,
+          baseScaleMultiplier: 2.0,
+          elements: {
+            toggleBtn: "#toggleMicBtn",
+            endBtn: "#endChatBtn",
+            voiceEls: ".a-cue-voice-el"
+          }
+        });
+        
+        voiceChat.onStart = function(e) {
+          console.log("VoiceChatLib Start Event:", e);
+        };
       
-      // --- Bind event callbacks to log the event details ---
-      voiceChat.onStart = function(e) {
-        console.log("VoiceChatLib Start Event:", e);
-      };
-
-      voiceChat.onToggle = function(e) {
-        console.log("VoiceChatLib ToggleMic Event:", e);
-      };
-
-      voiceChat.onEnd = function(e) {
-        console.log("VoiceChatLib End Event:", e);
-      };
-
-      // Start the library. The MutationObserver will ensure that if elements are added later (via AJAX, etc.)
-      // they are automatically bound and initialized.
-      voiceChat.start();
-    </script>
+        voiceChat.onToggle = function(e) {
+          console.log("VoiceChatLib ToggleMic Event:", e);
+        };
+      
+        voiceChat.onEnd = function(e) {
+          console.log("VoiceChatLib End Event:", e);
+        };
+      
+        voiceChat.start();
+      </script>
   </body>
 </html>
