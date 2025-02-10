@@ -32,11 +32,11 @@ var VoiceChatLib = (function () {
     // Default configurable constants.
     this.config = {
       amplitudeSmoothFactorVar: 0.3, // Smoothing factor (0–1)
-      baseRotationDivisor: 16,       // Divisor for base rotation speed (lower = faster)
-      dynamicLerpMin: 0.05,          // Minimum lerp factor when quiet
+      baseRotationDivisor: 16, // Divisor for base rotation speed (lower = faster)
+      dynamicLerpMin: 0.05, // Minimum lerp factor when quiet
       dynamicLerpAudioMultiplier: 0.5, // Additional lerp boost per audio level
-      maxAdditionalRotation: 360,    // Maximum extra rotation (degrees) when audio is strong
-      baseScaleMultiplier: 2.0,      // Factor controlling how much scale increases with audio
+      maxAdditionalRotation: 360, // Maximum extra rotation (degrees) when audio is strong
+      baseScaleMultiplier: 2.0, // Factor controlling how much scale increases with audio
       // Elements can be passed in as selectors or DOM element references.
       elements: {
         toggleBtn: "#toggleMicBtn",
@@ -148,10 +148,13 @@ var VoiceChatLib = (function () {
         el.style.transformOrigin = originX + "% " + originY + "%";
         if (this.audioStarted && typeof this.startTime === "number") {
           var effectiveTime = now - this.startTime;
-          var baseRot = parseFloat(offset) + ((effectiveTime * parseFloat(speed)) / this.config.baseRotationDivisor);
+          var baseRot =
+            parseFloat(offset) +
+            ((effectiveTime * parseFloat(speed)) / this.config.baseRotationDivisor);
           var addRot = this.smoothedAmplitude * this.config.maxAdditionalRotation;
           el.currentRotation = baseRot + addRot;
-          var tarScale = 1 + (this.smoothedAmplitude * parseFloat(scaleMultiplier) * this.config.baseScaleMultiplier);
+          var tarScale =
+            1 + this.smoothedAmplitude * parseFloat(scaleMultiplier) * this.config.baseScaleMultiplier;
           el.currentScale = tarScale;
         } else {
           el.currentRotation = 0;
@@ -201,7 +204,8 @@ var VoiceChatLib = (function () {
   // Initialize audio capture and immediately start recording.
   VoiceChat.prototype.initAudio = function () {
     var self = this;
-    navigator.mediaDevices.getUserMedia({ audio: true })
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
       .then(function (stream) {
         self.audioStream = stream;
         self.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -408,7 +412,6 @@ var VoiceChatLib = (function () {
             return (bytes / 1048576).toFixed(1) + " MB";
           else return (bytes / 1073741824).toFixed(1) + " GB";
         }
-
         var meta = {
           duration: durationMs,
           durationReadable: formatDuration(durationMs),
@@ -423,18 +426,38 @@ var VoiceChatLib = (function () {
           var readerDataURL = new FileReader();
           readerDataURL.onload = function (eDataURL) {
             var audioBase64 = eDataURL.target.result;
-            if (typeof self.onEnd === "function") {
-              self.onEnd({
-                event: "end",
-                timestamp: Date.now(),
-                details: "VoiceChat session ended",
-                audioBlob: blob,
-                audioMeta: meta,
-                audioBinary: binary,
-                audioBase64: audioBase64,
-                fileName: fileName,
+            VoiceChatLib.analyzeAudio(blob)
+              .then(function (analysis) {
+                if (typeof self.onEnd === "function") {
+                  self.onEnd({
+                    event: "end",
+                    timestamp: Date.now(),
+                    details: "VoiceChat session ended",
+                    audioBlob: blob,
+                    audioMeta: meta,
+                    audioBinary: binary,
+                    audioBase64: audioBase64,
+                    fileName: fileName,
+                    analysis: analysis
+                  });
+                }
+              })
+              .catch(function (err) {
+                console.error("Error analyzing audio:", err);
+                if (typeof self.onEnd === "function") {
+                  self.onEnd({
+                    event: "end",
+                    timestamp: Date.now(),
+                    details: "VoiceChat session ended (audio analysis failed)",
+                    audioBlob: blob,
+                    audioMeta: meta,
+                    audioBinary: binary,
+                    audioBase64: audioBase64,
+                    fileName: fileName,
+                    analysis: { error: err }
+                  });
+                }
               });
-            }
           };
           readerDataURL.readAsDataURL(blob);
         };
@@ -527,3 +550,41 @@ var VoiceChatLib = (function () {
     },
   };
 })();
+
+// Analyze recorded audio to detect if it's mostly silence/white noise.
+VoiceChatLib.analyzeAudio = function (blob) {
+  return new Promise(function (resolve, reject) {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      var arrayBuffer = e.target.result;
+      var AudioContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+      var offlineContext;
+      try {
+        offlineContext = new AudioContext(1, arrayBuffer.byteLength, 44100);
+      } catch (err) {
+        return reject(err);
+      }
+      offlineContext.decodeAudioData(
+        arrayBuffer,
+        function (audioBuffer) {
+          var channelData = audioBuffer.getChannelData(0);
+          var sum = 0;
+          for (var i = 0; i < channelData.length; i++) {
+            sum += Math.abs(channelData[i]);
+          }
+          var avgAmplitude = sum / channelData.length;
+          // Define threshold for silence (adjust as needed).
+          var isMostlySilence = avgAmplitude < 0.02;
+          resolve({ isMostlySilence: isMostlySilence, avgAmplitude: avgAmplitude });
+        },
+        function (err) {
+          reject(err);
+        }
+      );
+    };
+    reader.onerror = function (err) {
+      reject(err);
+    };
+    reader.readAsArrayBuffer(blob);
+  });
+};
